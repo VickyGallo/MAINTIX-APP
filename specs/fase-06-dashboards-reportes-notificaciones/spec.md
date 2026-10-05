@@ -34,7 +34,7 @@ Hacer visible el valor del servicio:
 - WhatsApp Business (F8).
 - Dashboard financiero avanzado (proyecciones, presupuesto anual) (F8).
 - Firma digital de reportes (F8).
-- Reportes programados automáticos (se generan a pedido; programarlos queda para F8).
+- Publicación automática al cliente: el informe mensual **se genera** solo, pero siempre lo publica el FM.
 
 ## Modelo de datos
 
@@ -60,7 +60,8 @@ reports                  (…base, type[MONTHLY|IMPROVEMENT_DOSSIER], property_i
 | `budget.decided` | FM | email, push, in-app | "{cliente} aprobó / rechazó {PR-…}" |
 | `finding.created` | FM (excepto el autor), CLIENT | FM: in-app · CLIENT: push, in-app | "Hallazgo en {propiedad}: {descripción corta}" |
 | `report.published` | CLIENT | email, in-app | "Tu informe {tipo} de {propiedad} está disponible" |
-| `fm.daily_digest` | FM | email (07:00 hora de la organización) | Aprobaciones pendientes, preventivos vencidos y de los próximos 7 días, regularizaciones > 72 h, tickets sin proveedor |
+| `fm.daily_digest` | FM | email (07:00 hora de la organización) | Aprobaciones pendientes, preventivos vencidos y de los próximos 7 días, regularizaciones > 72 h, tickets sin proveedor, **trabajos postergados sin movimiento hace más de 14 días** |
+| `report.scheduled` | FM | in-app (+ email) | Informe mensual generado automáticamente el día 1 de cada mes para cada propiedad activa; el FM revisa y publica |
 
 Reglas de envío:
 - Un evento sin destinatarios no genera jobs.

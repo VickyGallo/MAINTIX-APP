@@ -62,12 +62,18 @@ tickets              (…base, number, property_id, location_id?, asset_id?, cat
                      UNIQUE (organization_id, number)
                      INDEX (organization_id, state_id), (organization_id, property_id, created_at DESC),
                            (organization_id, provider_id), (organization_id, scheduled_start_date)
+approvals            (…base, subject_type[EMERGENCY_WORK|BUDGET_VERSION], subject_id,
+                      decision[APPROVED|REJECTED], amount?, currency?,
+                      decided_by_user_id, decided_at,
+                      channel[APP|EMAIL|WHATSAPP|PHONE|IN_PERSON], note?, evidence_file_id?,
+                      registered_by_user_id?, reason?)
+                     INDEX (organization_id, subject_type, subject_id)
 ticket_internal_notes(…base, ticket_id, body)
 ticket_state_history (…base, ticket_id, from_state_id?, to_state_id, reason?, actor_user_id?, actor_type[USER|SYSTEM])
 files                (…base, bucket, object_path, mime_type, size_bytes, width?, height?, checksum_sha256?,
                       status[PENDING|READY|REJECTED], variant[ORIGINAL|THUMBNAIL], parent_file_id?, uploaded_by)
                      UNIQUE (bucket, object_path)
-ticket_attachments   (…base, ticket_id, file_id, phase[BEFORE|DURING|AFTER|OTHER], caption?, visible_to_client bool default true)
+ticket_attachments   (…base, ticket_id, file_id, phase[BEFORE|DURING|AFTER|FINDING|OTHER], caption?, visible_to_client bool default true)
 ```
 
 `preventive_occurrence_id` y `origin_finding_id` se crean en F3 **sin foreign key**, porque las tablas destino nacen en F5. Las FK se agregan en F5-T05 y F5-T13.
@@ -129,8 +135,8 @@ Tipos de ticket: `CORRECTIVE`, `PREVENTIVE` e `IMPROVEMENT` son los 3 que usa la
 | `PROVIDER_ASSIGNED` | `provider_id` no es nulo, o `budget_exemption = NO_COST` (trabajo interno, por ejemplo "Administración") |
 | `SCHEDULED_DATE_SET` | `scheduled_start_date` no es nulo |
 | `HAS_RECEIVED_BUDGET` | existe ≥ 1 presupuesto `RECEIVED` *(F3: puerto que devuelve `false`; implementación real en F4-T02)* |
-| `BUDGET_EXEMPT_OR_EMERGENCY` | `budget_exemption ≠ NONE` o `is_emergency = true` |
-| `IS_EMERGENCY` | `is_emergency = true` |
+| `BUDGET_EXEMPT_OR_EMERGENCY` | `budget_exemption ≠ NONE`, o urgencia autorizada (ver `IS_EMERGENCY`) |
+| `IS_EMERGENCY` | `is_emergency = true` **y** existe una aprobación `EMERGENCY_WORK` para el ticket |
 | `NO_PENDING_REGULARIZATION` | `requires_regularization = false` |
 | `OWN_CLIENT_REQUEST` | `origin = CLIENT` y `requested_by_user_id` = actor |
 | `SYSTEM_ONLY` | el actor es un caso de uso de sistema (nunca una request de usuario) |
@@ -141,7 +147,8 @@ Tipos de ticket: `CORRECTIVE`, `PREVENTIVE` e `IMPROVEMENT` son los 3 que usa la
 2. **Solicitud del cliente:** solo pide propiedad, descripción (texto o voz) y fotos, más la marca opcional "Urgente".
    - Valores por defecto: `kind = CORRECTIVE`, `priority = MEDIUM` (o `HIGH` si marcó urgente), `origin = CLIENT`, `title` = primeros 80 caracteres de la descripción.
    - El FM reclasifica después.
-3. **Urgencia:** solo el FM la marca (`markEmergency` con motivo obligatorio). Ejemplos del Excel: pérdida de gas, instalación de termotanques.
+3. **Urgencia:** solo el FM la marca (`markEmergency`), y debe registrar **quién autorizó avanzar**, por qué canal y con qué motivo. Eso crea una aprobación `EMERGENCY_WORK`. Sin ese registro, el ticket no avanza por la vía de urgencia. Ejemplos del Excel: pérdida de gas, instalación de termotanques.
+   `approvals` es append-only y lo comparten F3 (urgencias) y F4 (versiones de presupuesto).
 4. **Regularización:** si un ticket entra a `TRABAJO_COORDINADO` o `EN_EJECUCION` por urgencia, sin presupuesto aprobado y sin exención, queda `requires_regularization = true`.
    - Se limpia al aprobarse un presupuesto (F4) o al registrar una exención con motivo.
    - No se puede `CERRAR` con regularización pendiente.
@@ -151,7 +158,8 @@ Tipos de ticket: `CORRECTIVE`, `PREVENTIVE` e `IMPROVEMENT` son los 3 que usa la
 8. **Borrado:** los tickets no se borran; se cancelan.
 9. **Propiedad con tickets abiertos:** no se puede borrar (completa la regla de F2).
 10. **Evidencias:**
-    - Cada adjunto tiene fase `BEFORE`, `DURING`, `AFTER` u `OTHER`.
+    - Cada adjunto tiene fase `BEFORE`, `DURING`, `AFTER`, `FINDING` u `OTHER`. `FINDING` se usa en las fotos de hallazgos (F5).
+    - Todo adjunto registra quién lo subió y cuándo (columnas base) y admite una descripción opcional.
     - Por defecto es `visible_to_client = true`. El FM puede ocultarlo (por ejemplo, fotos de sala de máquinas con datos sensibles).
 11. **Fotos:**
     - Formatos aceptados: `image/jpeg`, `image/png` y `image/webp`.

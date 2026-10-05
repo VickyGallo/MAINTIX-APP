@@ -154,9 +154,9 @@
 - **Tests:** simulacro de alerta.
 - **Tamaño:** M
 
-### F7-T15 · UAT en paralelo con el FM
+### F7-T15 · UAT interna en paralelo con el FM (R1)
 - **Depende de:** F7-T07, F7-T13
-- **Qué:** guion de pruebas por rol basado en los flujos reales de mayo 2026. Durante ≥ 1 semana el FM opera en Maintix y en el Excel en paralelo, con un tablero de observaciones clasificadas en bloqueante, mayor y menor.
+- **Qué:** guion de pruebas basado en los flujos reales de mayo 2026. Durante ≥ 1 semana el FM opera en Maintix y en el Excel en paralelo, con un tablero de observaciones clasificadas en bloqueante, mayor y menor. Sin acceso de clientes todavía.
 - **Criterios de aceptación:**
   - [ ] Bloqueantes abiertos = 0 al final.
   - [ ] Las observaciones mayores tienen una tarea creada o una decisión de postergarlas.
@@ -173,7 +173,7 @@
 - **Tamaño:** M
 
 ### F7-T17 · Salida a producción y acompañamiento
-- **Depende de:** F7-T08, F7-T09, F7-T10, F7-T15, F7-T16
+- **Depende de:** F7-T08, F7-T09, F7-T15, F7-T16
 - **Qué:** ejecutar el runbook en prod, invitar a FM y propietarios, pasar el Excel a solo lectura y hacer revisión diaria de alertas y feedback durante 2 semanas.
 - **Criterios de aceptación:**
   - [ ] Conciliación de prod igual a la de dev.
@@ -181,3 +181,14 @@
   - [ ] Informe de cierre del acompañamiento con métricas de uso y pendientes.
 - **Tests:** conciliación en prod.
 - **Tamaño:** L
+
+### F7-T18 · Apertura a clientes piloto (R2)
+- **Depende de:** F7-T17, F7-T10, F4-T17, F6-T12, F6-T16
+- **Qué:** habilitar el acceso de propietarios a una o dos propiedades piloto: invitaciones, acompañamiento en el primer uso, activación de las notificaciones al cliente, publicación del primer informe mensual y recolección de feedback durante 3 semanas.
+- **Criterios de aceptación:**
+  - [ ] Los propietarios piloto aprobaron al menos un presupuesto desde la app.
+  - [ ] Ninguna consulta de un piloto devolvió datos de otra propiedad (revisión de logs y auditoría).
+  - [ ] Informe de feedback con decisión de abrir al resto de los clientes o ajustar antes.
+- **Tests:** verificación de permisos en producción con una cuenta de prueba.
+- **Tamaño:** M
+- **Bloqueante externo:** disponibilidad de los propietarios piloto.

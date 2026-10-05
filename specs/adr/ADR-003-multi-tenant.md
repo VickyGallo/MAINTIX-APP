@@ -6,7 +6,7 @@
 
 ## Contexto
 
-- **Decisión de negocio (2026-09-17):** Maintix será SaaS a futuro. Al inicio opera una sola organización (TWS).
+- **Decisión de negocio (2026-09-17, ajustada 2026-10-05 por el reporte de arquitectura):** Maintix es primero una herramienta interna del servicio de Facility Management que opera Nicolás; después se abre a clientes con acceso controlado; un SaaS es solo una posibilidad futura (etapa 4). El modelo debe permitir llegar ahí **sin construir el SaaS ahora**. Al inicio opera una sola organización.
 - Agregar el aislamiento por organización después obliga a migrar todos los datos, reescribir permisos y re-testear todo el sistema.
 - Agregarlo hoy cuesta una columna, políticas RLS y una suite de tests.
 - Una misma persona puede tener roles distintos en contextos distintos (por ejemplo, FM en una organización y propietario en otra).

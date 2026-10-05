@@ -7,6 +7,7 @@
 | Documento | Contenido |
 |---|---|
 | [00-propuesta-escalabilidad.md](00-propuesta-escalabilidad.md) | Resumen ejecutivo, mejoras, costos, plan, KPIs, supuestos y bloqueantes |
+| [01-entregas-r1-r2.md](01-entregas-r1-r2.md) | Qué tareas entran en la entrega interna (R1) y cuáles en la de clientes piloto (R2) |
 | [adr/ADR-001-supabase.md](adr/ADR-001-supabase.md) | Supabase como plataforma de datos |
 | [adr/ADR-002-drizzle.md](adr/ADR-002-drizzle.md) | Drizzle en lugar de Prisma |
 | [adr/ADR-003-multi-tenant.md](adr/ADR-003-multi-tenant.md) | Multi-empresa desde el día 1 |
@@ -14,16 +15,16 @@
 
 | Fase | Spec | Tareas | Cantidad | Esfuerzo máx. |
 |---|---|---|---|---|
-| F0 Fundaciones | [spec](fase-00-fundaciones/spec.md) | [tareas](fase-00-fundaciones/tareas.md) | 16 | 6,8 días |
+| F0 Fundaciones | [spec](fase-00-fundaciones/spec.md) | [tareas](fase-00-fundaciones/tareas.md) | 18 | 7,8 días |
 | F1 Núcleo multi-empresa y seguridad | [spec](fase-01-nucleo-multi-empresa/spec.md) | [tareas](fase-01-nucleo-multi-empresa/tareas.md) | 18 | 10,2 días |
 | F2 Catálogos | [spec](fase-02-catalogos/spec.md) | [tareas](fase-02-catalogos/tareas.md) | 15 | 6,5 días |
-| F3 Tickets, estados y evidencias | [spec](fase-03-tickets-y-estados/spec.md) | [tareas](fase-03-tickets-y-estados/tareas.md) | 21 | 13,5 días |
-| F4 Presupuestos, aprobación y gastos | [spec](fase-04-presupuestos-y-gastos/spec.md) | [tareas](fase-04-presupuestos-y-gastos/tareas.md) | 18 | 10,2 días |
+| F3 Tickets, estados y evidencias | [spec](fase-03-tickets-y-estados/spec.md) | [tareas](fase-03-tickets-y-estados/tareas.md) | 22 | 14,0 días |
+| F4 Presupuestos, aprobación y gastos | [spec](fase-04-presupuestos-y-gastos/spec.md) | [tareas](fase-04-presupuestos-y-gastos/tareas.md) | 18 | 10,8 días |
 | F5 Preventivos, hallazgos y jobs | [spec](fase-05-preventivos-y-hallazgos/spec.md) | [tareas](fase-05-preventivos-y-hallazgos/tareas.md) | 16 | 8,8 días |
-| F6 Dashboards, reportes y notificaciones | [spec](fase-06-dashboards-reportes-notificaciones/spec.md) | [tareas](fase-06-dashboards-reportes-notificaciones/tareas.md) | 17 | 11,8 días |
-| F7 Migración y lanzamiento | [spec](fase-07-migracion-y-lanzamiento/spec.md) | [tareas](fase-07-migracion-y-lanzamiento/tareas.md) | 17 | 12,2 días |
+| F6 Dashboards, reportes y notificaciones | [spec](fase-06-dashboards-reportes-notificaciones/spec.md) | [tareas](fase-06-dashboards-reportes-notificaciones/tareas.md) | 18 | 12,2 días |
+| F7 Migración y lanzamiento | [spec](fase-07-migracion-y-lanzamiento/spec.md) | [tareas](fase-07-migracion-y-lanzamiento/tareas.md) | 18 | 12,8 días |
 | F8 Escala SaaS (post-MVP) | [spec](fase-08-escala-saas/spec.md) | — | — | — |
-| **Total MVP** | | | **138** | **≤ 80 días-persona** |
+| **Total MVP** | | | **143** | **≤ 83 días-persona** |
 
 ## Cómo trabajar con estas specs
 

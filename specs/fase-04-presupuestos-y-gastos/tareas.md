@@ -6,19 +6,20 @@
 
 ---
 
-### F4-T01 · Tablas `budgets` y `budget_files` + RLS
-- **Depende de:** F3-T03, F3-T10
-- **Qué:** crear las tablas, enums e índices, y las políticas de la spec (el `UPDATE` de CLIENT queda restringido a presupuestos enviados y accesibles).
+### F4-T01 · Tablas `budgets`, `budget_versions`, `budget_items` y `budget_files` + RLS
+- **Depende de:** F3-T03, F3-T10, F3-T22
+- **Qué:** crear las tablas, enums e índices y las políticas de la spec. Habilitar el tipo `BUDGET_VERSION` en `approvals` (creada en F3-T22). El `UPDATE` de CLIENT queda restringido a presupuestos enviados y accesibles.
 - **Criterios de aceptación:**
   - [ ] `CLIENT` no ve presupuestos con `submitted_at` nulo.
-  - [ ] Nadie puede borrar un `APPROVED` (política + restricción de dominio).
+  - [ ] Una versión con aprobación no se puede editar ni borrar (política + restricción de dominio).
+  - [ ] `version_no` es único y correlativo por presupuesto.
 - **Tests:** integración por rol + aislamiento.
-- **Tamaño:** M
+- **Tamaño:** L
 
 ### F4-T02 · Dominio de presupuestos + guard `HAS_RECEIVED_BUDGET`
 - **Depende de:** F4-T01, F3-T02
 - **Qué:**
-  - Módulo puro `finance/domain/budget`: transiciones de estado, validaciones de moneda y monto, selección única, reglas de adicionales (7) e inmutabilidad (8).
+  - Módulo puro `finance/domain/budget`: transiciones de estado, versionado (regla 2.b), validaciones de moneda y monto, suma de ítems = importe de la versión, selección única, reglas de adicionales (7) e inmutabilidad de versiones aprobadas (8).
   - Implementación real de `BudgetReadPort` para el guard de F3.
 - **Criterios de aceptación:**
   - [ ] 100 % de cobertura de ramas del dominio.
@@ -28,10 +29,12 @@
 
 ### F4-T03 · Casos de uso: solicitar y registrar recibido
 - **Depende de:** F4-T02, F3-T07
-- **Qué:** `requestBudget(ticketId, providerId, scope)` y `recordBudgetReceived(budgetId, amount, currency, validUntil?, fileIds?)`, con las transiciones automáticas del ticket (reglas 1 y 2), auditoría y eventos.
+- **Qué:** `requestBudget(ticketId, providerId, scope)`, `recordBudgetVersion(budgetId, { amount, currency, validUntil?, items?, fileIds? })` (crea la versión 1 o la corrección `n+1`) y las transiciones automáticas del ticket (reglas 1, 2 y 2.b), con auditoría y eventos.
 - **Criterios de aceptación:**
   - [ ] La transición automática solo ocurre desde los estados indicados; en otros estados el ticket no cambia.
   - [ ] Moneda por defecto = `properties.default_currency`.
+  - [ ] Una corrección crea la versión `n+1`, limpia `submitted_at` y conserva la versión anterior intacta.
+  - [ ] Si se cargan ítems, su suma debe coincidir con el importe de la versión → si no, 422.
 - **Tests:** unit + integración.
 - **Tamaño:** M
 
@@ -46,8 +49,10 @@
 
 ### F4-T05 · Caso de uso: decisión del cliente (aprobar/rechazar)
 - **Depende de:** F4-T04
-- **Qué:** `decideBudget(budgetId, decision, reason?)` como `CLIENT`: efectos de las reglas 4 y 5 en una sola transacción (presupuestos hermanos, transición de sistema, regularización), auditoría y evento `budget.decided`.
+- **Qué:** `decideBudget(budgetVersionId, decision, reason?)` como `CLIENT`: crea el registro en `approvals` (canal `APP`) y aplica los efectos de las reglas 4 y 5 en una sola transacción (presupuestos hermanos, transición de sistema, regularización), con auditoría y evento `budget.decided`.
 - **Criterios de aceptación:**
+  - [ ] Decidir sobre una versión que no es la enviada → 409.
+  - [ ] Queda una fila en `approvals` con monto, moneda, autor y fecha.
   - [ ] Dos decisiones concurrentes sobre presupuestos del mismo ticket → queda uno aprobado, sin estados inconsistentes (bloqueo por ticket).
   - [ ] Rechazar sin motivo → 422.
 - **Tests:** unit + integración, incluido el caso concurrente.
@@ -55,10 +60,11 @@
 
 ### F4-T06 · Caso de uso: decisión registrada por el FM
 - **Depende de:** F4-T05
-- **Qué:** `registerBudgetDecision(budgetId, decision, channel, evidence)` (regla 6) reutilizando la lógica de F4-T05.
+- **Qué:** `registerBudgetDecision(budgetVersionId, decision, channel, decidedBy, evidence)` (regla 6) reutilizando la lógica de F4-T05.
 - **Criterios de aceptación:**
   - [ ] Sin archivo ni nota de ≥ 20 caracteres → 422.
   - [ ] `channel = APP` rechazado para el FM.
+  - [ ] La aprobación guarda `registered_by_user_id` (el FM) y `decided_by_user_id` (quien aprobó).
 - **Tests:** unit + integración.
 - **Tamaño:** S
 
@@ -109,8 +115,9 @@
 ### F4-T12 · API v1: presupuestos y decisiones
 - **Depende de:** F4-T08
 - **Qué:**
-  - `GET/POST /tickets/{id}/budgets`, `PATCH /budgets/{id}` (recibido), `POST /tickets/{id}/budgets/submit`.
-  - `POST /budgets/{id}/decision` (CLIENT), `POST /budgets/{id}/registered-decision` (FM).
+  - `GET/POST /tickets/{id}/budgets`, `POST /budgets/{id}/versions` (recibido o corrección, con ítems), `GET /budgets/{id}/versions`, `POST /tickets/{id}/budgets/submit`.
+  - `POST /budget-versions/{id}/decision` (CLIENT), `POST /budget-versions/{id}/registered-decision` (FM).
+  - `GET /tickets/{id}/approvals` (historial de decisiones, incluidas las urgencias).
   - `GET /approvals/pending` (CLIENT: su bandeja; FM: pendientes con antigüedad).
 - **Criterios de aceptación:**
   - [ ] Test de contrato del DTO de cliente (sin datos internos).
@@ -132,10 +139,11 @@
 
 ### F4-T14 · UI FM: pestaña Presupuestos del ticket
 - **Depende de:** F4-T12, F3-T18
-- **Qué:** lista y comparativa lado a lado de presupuestos (proveedor, monto, moneda, validez, PDF); acciones solicitar, registrar recibido, enviar a aprobación y registrar decisión por otro canal; adicionales en una sección aparte.
+- **Qué:** lista y comparativa lado a lado de presupuestos (proveedor, última versión, monto, moneda, validez, PDF, ítems); acciones solicitar, registrar versión, enviar a aprobación y registrar decisión por otro canal; historial de versiones y de aprobaciones; adicionales en una sección aparte.
 - **Criterios de aceptación:**
   - [ ] La comparativa resalta el menor monto por moneda.
   - [ ] "Enviar a aprobación" muestra una vista previa de lo que verá el cliente.
+  - [ ] El historial muestra cada versión con su importe, fecha y decisión, sin perder las anteriores.
 - **Tests:** E2E del flujo FM.
 - **Tamaño:** L
 

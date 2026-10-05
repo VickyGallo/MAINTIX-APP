@@ -190,3 +190,23 @@
   - [ ] Página `/dev/ui` (solo fuera de prod) que muestra todos los primitivos.
 - **Tests:** test de accesibilidad automatizado (axe) sobre `/dev/ui`.
 - **Tamaño:** L
+
+### F0-T17 · ERD consolidado del modelo de datos
+- **Depende de:** F0-T01, F0-T02
+- **Qué:** diagrama entidad-relación de todo el MVP (entidades de F1 a F6, con relaciones y cardinalidades) en `docs/02_Data_ERD.md`, escrito en Mermaid para que viva versionado junto al código.
+- **Criterios de aceptación:**
+  - [ ] Incluye las entidades de las specs F1 a F6 y marca en qué fase nace cada una.
+  - [ ] Se renderiza en GitHub.
+  - [ ] Coincide con `04_Data_Model.md` (revisión cruzada).
+- **Tests:** n/a
+- **Tamaño:** M
+
+### F0-T18 · Matriz consolidada de roles y permisos
+- **Depende de:** F0-T01
+- **Qué:** `docs/06_Roles_Permissions.md` con una tabla única entidad × rol (`ORG_ADMIN`, `FACILITY_MANAGER`, `CLIENT`, `PROVIDER` reservado, `PLATFORM_ADMIN`) indicando permiso de lectura, alta, edición y borrado, qué se expone en la API y qué protege la RLS.
+- **Criterios de aceptación:**
+  - [ ] Cubre todas las tablas de las specs F1 a F6.
+  - [ ] Cada fila dice si el control es por RLS, por caso de uso o por ambos.
+  - [ ] Es la referencia que usan los tests de permisos de cada fase.
+- **Tests:** n/a
+- **Tamaño:** M

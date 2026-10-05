@@ -66,11 +66,11 @@
 - **Tamaño:** M
 
 ### F3-T07 · Casos de uso de estado: transicionar, postergar/reanudar, urgencia
-- **Depende de:** F3-T05
+- **Depende de:** F3-T05, F3-T22
 - **Qué:**
   - `transitionTicket(id, toKey, reason?)`: valida con dominio, maneja timestamps, `requires_regularization`, historial, auditoría y evento `ticket.state_changed`.
   - `resumeTicket(id)`.
-  - `markEmergency(id, reason)` y `setBudgetExemption(id, type, reason)`.
+  - `markEmergency(id, { reason, authorizedBy, channel, evidence })`, que crea la aprobación `EMERGENCY_WORK`, y `setBudgetExemption(id, type, reason)`.
   - `GET available-transitions` calculado en servidor.
 - **Criterios de aceptación:**
   - [ ] Se cumplen las reglas 3 a 7 de la spec.
@@ -222,4 +222,14 @@
 - **Criterios de aceptación:**
   - [ ] El test corre en CI contra Supabase local en < 3 min.
 - **Tests:** el E2E.
+- **Tamaño:** M
+
+### F3-T22 · Tabla `approvals` y autorización de urgencias
+- **Depende de:** F3-T03, F1-T14
+- **Qué:** crear la tabla `approvals` (append-only, compartida con F4) con sus políticas: `INSERT` y `SELECT` por miembros según acceso; `UPDATE` y `DELETE` denegados a todos. Incluye el tipo `EMERGENCY_WORK` y deja preparado `BUDGET_VERSION` (lo usa F4).
+- **Criterios de aceptación:**
+  - [ ] `UPDATE`/`DELETE` fallan para cualquier rol de aplicación.
+  - [ ] Una urgencia sin aprobación registrada no habilita las transiciones 10 y 11.
+  - [ ] `CLIENT` no ve aprobaciones de otras propiedades.
+- **Tests:** integración de inmutabilidad y del guard + aislamiento.
 - **Tamaño:** M

@@ -1,18 +1,18 @@
 # Propuesta de mejoras para escalabilidad — Maintix
 
-> **Estado:** Propuesta para revisión · **Fecha:** 2026-09-17
-> **Fuentes analizadas:** `Presentacion.pdf` (mayo 2026), `Documento 01.docx`, `docs/03–05` y `CONTRIBUTING`, `TICKETS.xlsx` (operación real de mayo 2026)
+> **Estado:** Propuesta para revisión · **Fecha:** 2026-09-17 · **Actualizada:** 2026-10-05 (alineada con el reporte de arquitectura)
+> **Fuentes analizadas:** `Presentacion.pdf` (mayo 2026), `Documento 01.docx`, `docs/03–05` y `CONTRIBUTING`, `TICKETS.xlsx` (operación real de mayo 2026), `Reporte_Arquitectura_Facility_Management_VERSION_REFORMULADA.docx` (octubre 2026)
 
 ---
 
 ## 1. Resumen ejecutivo
 
-**Propuesta:** construir Maintix como una **plataforma propia sobre Supabase (Postgres) y Next.js**, preparada desde el día 1 para varias empresas de FM (SaaS), en lugar de AppSheet + Google Sheets.
+**Propuesta:** construir Maintix como una **plataforma propia sobre Supabase (Postgres) y Next.js**, en lugar de AppSheet + Google Sheets. Primero es una **herramienta interna** del servicio de Facility Management que opera Nicolás (R1); después se abre a clientes piloto (R2). El modelo de datos queda preparado para varios clientes y, eventualmente, para un SaaS, pero **no se construye el SaaS ahora**.
 
 | Dimensión | Impacto |
 |---|---|
 | **Costo** | ~USD 45/mes de infraestructura al inicio (Supabase Pro USD 25 + Vercel Pro USD 20 por seat). Opcional: PITR USD 100/mes. Crece con fotos (storage/egress), no con tickets. |
-| **Tiempo** | 138 tareas atómicas en 8 fases hasta producción: **≤ 80 días-persona** (suma de máximos), **~20 semanas con 1 desarrollador** con 25 % de contingencia, **~11–13 semanas con 2** trabajando en paralelo. Ver §7. |
+| **Tiempo** | 143 tareas atómicas en 8 fases: **≤ 83 días-persona** (suma de máximos). R1 (uso interno) ≤ 71 días; R2 (clientes piloto) ≤ 12 días. Con 1 desarrollador y 25 % de contingencia: **~18 semanas hasta R1** y **~21 hasta R2**; con 2, ~10–12 semanas hasta R1. Ver §7. |
 | **Riesgo** | Bajo en tecnología (componentes maduros). Los riesgos principales son de negocio: reglas a validar con el FM (§9), tiempo del FM para la migración y la UAT, y revisión legal. |
 | **ROI** | Pasar a SaaS no requiere reescribir. Se elimina el riesgo de fuga de datos entre clientes. Se mide con los KPIs de §8, con línea base tomada en la UAT. |
 
@@ -43,6 +43,20 @@
 | 5 | Supabase (Postgres, Auth, Storage) como plataforma de datos | [ADR-001](adr/ADR-001-supabase.md) |
 | 6 | Drizzle ORM en lugar de Prisma (RLS efectivo) | [ADR-002](adr/ADR-002-drizzle.md) |
 | 7 | Workflow configurable: 12 estados del Excel → 4 visibles para el cliente | [ADR-004](adr/ADR-004-workflow-configurable.md) |
+
+### Ajustes por el reporte de arquitectura (2026-10-05)
+
+| # | Ajuste | Dónde |
+|---|---|---|
+| 8 | Dos entregas: **R1 uso interno** y **R2 clientes piloto** | [01-entregas-r1-r2.md](01-entregas-r1-r2.md) |
+| 9 | El FM que opera el sistema es **Nicolás** | §9, UAT (F7-T15) |
+| 10 | Presupuestos con **versiones** e **ítems**; cada versión conserva importe, fecha y detalle | [Fase 4](fase-04-presupuestos-y-gastos/spec.md) |
+| 11 | **Aprobación** como registro propio (quién, cuándo, cuánto, canal), también para autorizar urgencias | [Fase 3](fase-03-tickets-y-estados/spec.md), [Fase 4](fase-04-presupuestos-y-gastos/spec.md) |
+| 12 | Evidencia de tipo **hallazgo** | [Fase 3](fase-03-tickets-y-estados/spec.md) |
+| 13 | Seguimiento de **trabajos postergados** y **informe mensual automático** | [Fase 6](fase-06-dashboards-reportes-notificaciones/spec.md) |
+| 14 | **ERD** y **matriz de roles y permisos** antes de programar las tablas | [Fase 0](fase-00-fundaciones/spec.md) |
+
+El reporte valida el resto de las decisiones: Next.js + PWA, Supabase con RLS, modelo preparado para varios clientes sin construir el SaaS, Ticket ≠ Presupuesto ≠ Factura ≠ Pago, 12 estados internos con 4 derivados para el cliente, preventivo → hallazgo → correctivo, urgencias como excepción formal, auditoría y la lista de lo que no se construye en el MVP.
 
 ---
 
@@ -109,25 +123,32 @@
 
 | Fase | Tareas | Esfuerzo máx. (días-persona) | Depende de | Hito |
 |---|---|---|---|---|
-| [F0 Fundaciones](fase-00-fundaciones/spec.md) | 16 | 6,8 | — | Repo, CI/CD, entornos, docs coherentes |
+| [F0 Fundaciones](fase-00-fundaciones/spec.md) | 18 | 7,8 | — | Repo, CI/CD, entornos, docs, ERD y matriz de permisos |
 | [F1 Núcleo multi-empresa](fase-01-nucleo-multi-empresa/spec.md) | 18 | 10,2 | F0 | Login, organizaciones, RLS, auditoría |
 | [F2 Catálogos](fase-02-catalogos/spec.md) | 15 | 6,5 | F1 | Propiedades, proveedores, rubros |
-| [F3 Tickets y estados](fase-03-tickets-y-estados/spec.md) | 21 | 13,5 | F2 | Solicitud mobile + workflow + fotos |
-| [F4 Presupuestos y gastos](fase-04-presupuestos-y-gastos/spec.md) | 18 | 10,2 | F3 | Aprobación en app + pagos |
+| [F3 Tickets y estados](fase-03-tickets-y-estados/spec.md) | 22 | 14,0 | F2 | Workflow, fotos, urgencias autorizadas |
+| [F4 Presupuestos y gastos](fase-04-presupuestos-y-gastos/spec.md) | 18 | 10,8 | F3 | Versiones, aprobaciones y pagos |
 | [F5 Preventivos y hallazgos](fase-05-preventivos-y-hallazgos/spec.md) | 16 | 8,8 | F3 | Plan maestro automático |
-| [F6 Dashboards, reportes, notificaciones](fase-06-dashboards-reportes-notificaciones/spec.md) | 17 | 11,8 | F4, F5 | Valor visible para el propietario |
-| [F7 Migración y lanzamiento](fase-07-migracion-y-lanzamiento/spec.md) | 17 | 12,2 | F1–F6 | **MVP en producción** |
-| [F8 Escala SaaS](fase-08-escala-saas/spec.md) | — | — | F7 + métricas | Vender a otras empresas de FM |
-| **Total MVP** | **138** | **≤ 80** | | |
+| [F6 Dashboards, reportes, notificaciones](fase-06-dashboards-reportes-notificaciones/spec.md) | 18 | 12,2 | F4, F5 | Dashboard FM (R1); vista y reportes del cliente (R2) |
+| [F7 Migración y lanzamiento](fase-07-migracion-y-lanzamiento/spec.md) | 18 | 12,8 | F1–F6 | **R1 en producción** y apertura a pilotos (R2) |
+| [F8 Escala SaaS](fase-08-escala-saas/spec.md) | — | — | R2 + métricas | Evaluar producto independiente |
+| **Total MVP** | **143** | **≤ 83,0** | | |
+
+| Entrega | Tareas | Esfuerzo máx. | Calendario con 1 desarrollador (+25 %) | Con 2 desarrolladores |
+|---|---|---|---|---|
+| **R1 — Uso interno** | 126 | ≤ 71,2 días | ~18 semanas | ~10–12 semanas |
+| **R2 — Clientes piloto** | 17 | ≤ 11,8 días | +~3 semanas | +~2 semanas |
+
+Detalle de qué tarea va en cada entrega: [01-entregas-r1-r2.md](01-entregas-r1-r2.md).
 
 **Cómo leer la estimación:**
 - **Esfuerzo máximo:** suma del tope de cada tarea (S = 2 h, M = 4 h, L = 8 h). Es la cota superior del trabajo de desarrollo.
-- **Calendario con 1 desarrollador:** 80 días + 25 % de contingencia (revisiones, retrabajo, imprevistos) ≈ **100 días hábiles ≈ 20 semanas**.
-- **Calendario con 2 desarrolladores:** backend/dominio y UI en paralelo desde F2; F4 y F5 en paralelo después de F3 → **~11–13 semanas**.
-- **Tiempo calendario que no es desarrollo:** UAT (≥ 1 semana), acompañamiento posterior al lanzamiento (2 semanas) y revisión legal. F7-T10 conviene iniciarla durante F5.
-- **Nota de transparencia:** la estimación preliminar en conversación fue ~12 semanas para 1 desarrollador. Al detallar las tareas, el esfuerzo real resultó mayor. La cifra válida es la de esta tabla.
+- **Contingencia de 25 %:** revisiones, retrabajo e imprevistos.
+- **Con 2 desarrolladores:** backend/dominio y UI en paralelo desde F2; F4 y F5 en paralelo después de F3.
+- **Tiempo calendario que no es desarrollo:** UAT interna (≥ 1 semana), acompañamiento posterior a R1 (2 semanas), piloto con clientes (3 semanas) y revisión legal (iniciarla durante R1, porque bloquea R2).
+- **Nota de transparencia:** la primera estimación conversada fue ~12 semanas; al detallar las tareas resultó ~20. Con los cambios del reporte se suman 5 tareas (≈ +3 días). Separar R1 y R2 **no reduce el trabajo total**: permite salir antes con la operación interna (~12 días menos que el MVP completo) y decidir la apertura a clientes con datos reales.
 
-**Camino crítico:** F0 → F1 → F2 → F3 → F4 → F6 → F7. F5 corre en paralelo a F4.
+**Camino crítico de R1:** F0 → F1 → F2 → F3 → F4 → F6 (parte FM) → F7. F5 corre en paralelo a F4.
 
 ---
 
@@ -147,7 +168,7 @@ Objetivo del MVP según el Documento 01: validar que el FM obtiene suficiente va
 
 ---
 
-## 9. Supuestos a validar con el FM (consolidado)
+## 9. Supuestos a validar con Nicolás (FM) (consolidado)
 
 | # | Supuesto | Fase | Si resulta falso… |
 |---|---|---|---|
@@ -170,15 +191,16 @@ Objetivo del MVP según el Documento 01: validar que el FM obtiene suficiente va
 | Aprobación de gasto de infraestructura | F0-T11 | Titular de la cuenta / dirección |
 | Acceso al repo legacy `tws-facility-app` | F0-T05 | Titular del repo legacy |
 | Acceso al DNS del dominio para emails | F6-T03 | Responsable del dominio |
-| Sesión de resolución de conflictos del Excel | F7-T05 | FM |
+| Sesión de resolución de conflictos del Excel | F7-T05 | Nicolás |
 | Revisión legal de privacidad y términos | F7-T10 | Asesoría legal |
-| UAT con FM y al menos un propietario | F7-T15 | FM |
+| UAT interna con el FM | F7-T15 | Nicolás |
+| Propietarios para el piloto | F7-T18 | Nicolás |
 
 ---
 
 ## 11. Próximos pasos
 
 1. Revisar esta propuesta y los ADR (F0-T01).
-2. Validar los supuestos de §9 con el FM (1 reunión de ~1 h).
+2. Validar los supuestos de §9 con Nicolás (1 reunión de ~1 h).
 3. Definir el equipo (1 o 2 desarrolladores) para fijar el calendario.
-4. Arrancar la Fase 0.
+4. Fase 0: las tareas sin bloqueantes ya están en marcha (scaffold, calidad, testing, Supabase local, Drizzle, sistema de diseño).

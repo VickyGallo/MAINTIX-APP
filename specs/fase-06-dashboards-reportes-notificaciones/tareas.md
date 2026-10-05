@@ -77,10 +77,11 @@
 
 ### F6-T08 · Recordatorios de aprobación y resumen diario del FM
 - **Depende de:** F6-T03, F5-T03
-- **Qué:** job horario `budget-reminders` (48 h, máximo 3) y job `fm-daily-digest` (07:00 en la zona horaria de la organización; no se envía si no hay contenido).
+- **Qué:** job horario `budget-reminders` (48 h, máximo 3) y job `fm-daily-digest` (07:00 en la zona horaria de la organización; no se envía si no hay contenido), que incluye el seguimiento de trabajos postergados sin movimiento hace más de 14 días.
 - **Criterios de aceptación:**
   - [ ] Un presupuesto decidido no recibe más recordatorios.
   - [ ] El resumen no se envía dos veces el mismo día.
+  - [ ] Un ticket postergado hace 15 días aparece en el resumen; uno de 5 días, no.
 - **Tests:** integración con reloj simulado.
 - **Tamaño:** M
 
@@ -167,4 +168,14 @@
 - **Criterios de aceptación:**
   - [ ] Corre en CI con el runner de jobs invocado por el test.
 - **Tests:** el E2E.
+- **Tamaño:** M
+
+### F6-T18 · Generación periódica del informe mensual
+- **Depende de:** F6-T14, F5-T03
+- **Qué:** job mensual `schedule-monthly-reports` (día 1, 06:00 en la zona horaria de la organización) que encola la generación del informe del mes anterior para cada propiedad activa y avisa al FM cuando están listos. La publicación al cliente sigue siendo manual.
+- **Criterios de aceptación:**
+  - [ ] Es idempotente: un reporte por propiedad y período, aunque el job corra dos veces.
+  - [ ] Una propiedad sin movimientos en el mes no genera reporte.
+  - [ ] Los reportes generados quedan sin publicar hasta que el FM los revisa.
+- **Tests:** integración con reloj simulado.
 - **Tamaño:** M

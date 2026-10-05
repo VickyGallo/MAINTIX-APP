@@ -28,6 +28,7 @@ Dejar listos el repositorio, los entornos, la calidad automatizada y la document
 9. Observabilidad base: logs estructurados, Sentry, `/api/health`.
 10. Sistema de diseño base: tokens, modo claro/oscuro, componentes primitivos.
 11. Plantillas de PR y de issue, y protección de la rama `main`.
+12. Entregables previos a programar que pide el reporte de arquitectura: **ERD consolidado** y **matriz de roles y permisos**.
 
 ## Fuera de alcance
 
@@ -78,6 +79,7 @@ MAINTIX-APP/
 - [ ] Merge a `main` genera deploy; la migración de prod requiere aprobación manual.
 - [ ] `/api/health` responde 200 en dev y prod, y un error forzado aparece en Sentry.
 - [ ] Costo mensual aprobado por el titular de la cuenta antes de contratar planes pagos.
+- [ ] ERD y matriz de permisos publicados en `/docs` y revisados antes de escribir las tablas de F1.
 
 ## Riesgos y mitigación
 
