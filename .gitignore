@@ -55,3 +55,6 @@ next-env.d.ts
 *.xlsx
 *.xls
 import-resolutions*.yaml
+
+# vitest
+/.vitest/
