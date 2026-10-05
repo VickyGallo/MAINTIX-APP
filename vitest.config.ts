@@ -31,6 +31,11 @@ export default defineConfig({
           // Los tests de integración comparten una base de datos local: corren en serie.
           fileParallelism: false,
           testTimeout: 30_000,
+          env: {
+            // Supabase local (`pnpm db:start`). En CI se define por variable de entorno.
+            DATABASE_URL:
+              process.env.DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres",
+          },
         },
       },
     ],

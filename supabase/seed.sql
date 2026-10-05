@@ -1,0 +1,2 @@
+-- Seed de desarrollo local. Se ejecuta con `pnpm db:reset`.
+-- Los datos de ejemplo (organizaciones y usuarios de prueba) se agregan en F1-T18.
