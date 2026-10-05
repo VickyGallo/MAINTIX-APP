@@ -1,28 +1,93 @@
 @import "tailwindcss";
 
+/*
+ * Tokens de diseño — estética "Banca Privada": fondos blancos, grises suaves,
+ * un solo color de acción sobrio. Todos los pares texto/fondo cumplen contraste AA.
+ * Modo oscuro según la preferencia del sistema operativo.
+ */
 :root {
   --background: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: #f5f6f7;
+  --border: #dfe2e6;
+  --border-strong: #b9bfc6;
   --foreground: #1c1f23;
   --muted: #5d646d;
-}
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --font-sans: var(--font-geist-sans);
+  --primary: #1f2a37;
+  --primary-hover: #2e3c4d;
+  --primary-foreground: #ffffff;
+  --ring: #3b6fd6;
+
+  --success: #1e6b45;
+  --success-soft: #e7f4ec;
+  --warning: #8a5300;
+  --warning-soft: #fdf3e1;
+  --danger: #b42318;
+  --danger-soft: #fdecea;
+  --info: #1d4f91;
+  --info-soft: #e8f0fb;
+
+  --radius: 0.75rem;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #111315;
+    --surface: #181b1e;
+    --surface-muted: #202428;
+    --border: #2e3338;
+    --border-strong: #454c53;
     --foreground: #eceef0;
     --muted: #a3a9b1;
+
+    --primary: #e6e9ec;
+    --primary-hover: #ffffff;
+    --primary-foreground: #14171a;
+    --ring: #7aa2ec;
+
+    --success: #6fd3a0;
+    --success-soft: #16291f;
+    --warning: #f2b766;
+    --warning-soft: #2e2414;
+    --danger: #ff8f84;
+    --danger-soft: #331a18;
+    --info: #8fb6f2;
+    --info-soft: #172338;
   }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --radius-ui: var(--radius);
+  --font-sans: var(--font-geist-sans);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
