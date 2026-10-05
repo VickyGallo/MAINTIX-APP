@@ -1,0 +1,13 @@
+pnpm-lock.yaml
+.next/
+coverage/
+playwright-report/
+test-results/
+.vitest/
+legacy/
+supabase/migrations/
+# documentación escrita a mano: no se reformatea automáticamente
+docs/
+specs/
+AGENTS.md
+CLAUDE.md

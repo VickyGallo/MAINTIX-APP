@@ -7,12 +7,12 @@ Plataforma de Facility Management para propiedades de alto valor: tickets, presu
 
 ## Stack
 
-| Capa | Tecnología |
-|---|---|
-| App / API | Next.js (App Router) + TypeScript estricto |
-| UI | Tailwind CSS + sistema de diseño propio (`src/ui`) |
-| Datos | Supabase (Postgres, Auth, Storage) + Drizzle ORM |
-| Tests | Vitest (unit + integración) y Playwright (E2E) |
+| Capa      | Tecnología                                         |
+| --------- | -------------------------------------------------- |
+| App / API | Next.js (App Router) + TypeScript estricto         |
+| UI        | Tailwind CSS + sistema de diseño propio (`src/ui`) |
+| Datos     | Supabase (Postgres, Auth, Storage) + Drizzle ORM   |
+| Tests     | Vitest (unit + integración) y Playwright (E2E)     |
 
 ## Requisitos
 
@@ -22,13 +22,13 @@ Plataforma de Facility Management para propiedades de alto valor: tickets, presu
 
 ## Comandos
 
-| Comando | Qué hace |
-|---|---|
-| `pnpm install` | Instala dependencias |
-| `pnpm dev` | Levanta la app en `http://localhost:3000` |
-| `pnpm build` | Build de producción |
-| `pnpm typecheck` | Chequeo de tipos |
-| `pnpm lint` | ESLint + reglas de capas |
+| Comando          | Qué hace                                  |
+| ---------------- | ----------------------------------------- |
+| `pnpm install`   | Instala dependencias                      |
+| `pnpm dev`       | Levanta la app en `http://localhost:3000` |
+| `pnpm build`     | Build de producción                       |
+| `pnpm typecheck` | Chequeo de tipos                          |
+| `pnpm lint`      | ESLint + reglas de capas                  |
 
 ## Estructura
 

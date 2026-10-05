@@ -81,7 +81,7 @@
 
 ### F0-T07 · Lint, formato y límites entre capas
 - **Depende de:** F0-T06
-- **Qué:** ESLint + Prettier, regla de límites entre capas (`eslint-plugin-boundaries` o `dependency-cruiser`) y regla que prohíbe importar `adminDb` fuera de `src/modules/jobs/**`, `src/modules/importer/**` y `scripts/**`.
+- **Qué:** ESLint + Prettier, regla de límites entre capas (implementada con `no-restricted-imports` de ESLint, sin plugins extra) y regla que prohíbe importar `adminDb` fuera de `src/modules/jobs/infrastructure/**`, `src/modules/importer/infrastructure/**`, `scripts/**` y `tests/**`.
 - **Criterios de aceptación:**
   - [ ] `pnpm lint` falla si `domain` importa `infrastructure`.
   - [ ] `pnpm lint` falla si `src/app/**` importa `adminDb`.
